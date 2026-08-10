@@ -623,12 +623,13 @@ video::cue { opacity: 0; }
 .combo-group { display: flex; align-items: stretch; }
 .combo-btns {
   display: flex; align-items: stretch;
+  background: rgba(255,255,255,0.08);
   border-radius: 8px; overflow: hidden;
   transition: background 0.15s var(--ease);
 }
 .combo-btns .ctrl-btn { border-radius: 0; }
 .combo-btns .ctrl-btn:hover { background: transparent; }
-.combo-btns:hover { background: rgba(255,255,255,0.16); }
+.combo-btns:hover { background: rgba(255,255,255,0.18); }
 .combo-btns > .ctrl-btn + .ctrl-btn { border-left: 1px solid rgba(255,255,255,0.14); }
 .popover {
   position: absolute; bottom: 46px; right: 0;

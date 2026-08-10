@@ -108,6 +108,15 @@
       tx.onerror = () => reject(tx.error);
     });
   }
+  async function idbDelete(key) {
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete(key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
 
   // =====================================================================
   // METADATA (progress / notes / preferences / durations) -- read/write
@@ -543,19 +552,6 @@
     subtitleCue.classList.add('visible');
   }
 
-  function attachTextTrack() {
-    const tt = video.textTracks[0];
-    if (!tt) {
-      activeTextTrack = null;
-      subtitleCue.classList.remove('visible');
-      return;
-    }
-    activeTextTrack = tt;
-    tt.mode = 'hidden';          // keeps cue events firing, no native painting
-    tt.addEventListener('cuechange', renderActiveCues);
-    renderActiveCues();
-  }
-
   // ---- settings panel wiring ----
   const subFontSeg = document.getElementById('subFontSeg');
   const subBoldBtn = document.getElementById('subBoldBtn');
@@ -651,6 +647,7 @@
     playIcon.classList.add('icon-alt');
     pauseIcon.classList.remove('icon-alt');
     showUI();
+    syncBgMusicPlayback();
   });
   video.addEventListener('pause', () => {
     player.classList.remove('is-playing');
@@ -658,6 +655,7 @@
     pauseIcon.classList.add('icon-alt');
     markDirty();
     saveNow();
+    syncBgMusicPlayback();
   });
   video.addEventListener('waiting', () => bufferSpinner.classList.add('show'));
   video.addEventListener('playing', () => bufferSpinner.classList.remove('show'));
@@ -799,8 +797,19 @@
   speedMenu.addEventListener('click', (e) => e.stopPropagation());
   document.addEventListener('click', () => closePopovers(null));
 
-  // ---- background music: entirely independent of the course video's
-  // volume/mute/playback-rate -- its own <audio> element, own prefs ----
+  // ---- background music: independent volume/speed from the course video,
+  // but its play/pause state follows the video's -- playing the course
+  // starts it (from within the video's own 'play' event, which still
+  // counts as user-gesture-connected since it fires synchronously off
+  // the click that started the video -- calling bgMusicAudio.play() any
+  // other time, e.g. straight from boot, gets silently blocked by the
+  // browser's autoplay policy since there's no fresh gesture to attach to),
+  // pausing the course pauses it too. ----
+  function syncBgMusicPlayback() {
+    const shouldPlay = state.prefs.bgMusicOn && !video.paused;
+    if (shouldPlay && bgMusicAudio.paused) bgMusicAudio.play().catch(() => {});
+    else if (!shouldPlay && !bgMusicAudio.paused) bgMusicAudio.pause();
+  }
   function applyBgMusicPrefs() {
     bgMusicAudio.volume = state.prefs.bgMusicVolume;
     bgMusicAudio.playbackRate = state.prefs.bgMusicSpeed;
@@ -809,17 +818,12 @@
     bgMusicSpeed.value = state.prefs.bgMusicSpeed;
     bgMusicSpeedVal.textContent = state.prefs.bgMusicSpeed + '×';
     bgMusicBtn.classList.toggle('active', state.prefs.bgMusicOn);
-    if (state.prefs.bgMusicOn) {
-      bgMusicAudio.play().catch(() => {});
-    } else {
-      bgMusicAudio.pause();
-    }
+    syncBgMusicPlayback();
   }
   bgMusicBtn.addEventListener('click', () => {
     state.prefs.bgMusicOn = !state.prefs.bgMusicOn;
     bgMusicBtn.classList.toggle('active', state.prefs.bgMusicOn);
-    if (state.prefs.bgMusicOn) bgMusicAudio.play().catch(() => {});
-    else bgMusicAudio.pause();
+    syncBgMusicPlayback();
     markDirty();
   });
   bgMusicSettingsBtn.addEventListener('click', (e) => {
@@ -1004,6 +1008,11 @@
           await noteImagesDirHandle.removeEntry(name).catch(() => {});
         }
       }
+      // forget the remembered folder too, so the picker screen shows again
+      // instead of silently reconnecting -- see the code comment on the
+      // click handler itself for why this can't fully revoke the browser's
+      // own access grant, only our app's memory of it
+      await idbDelete(HANDLE_KEY).catch(() => {});
     } catch (e) {
       alert('Reset failed: ' + e.message);
       return;
@@ -1070,9 +1079,13 @@
       track.srclang = 'en';
       track.src = currentSubtitleUrl;
       track.default = true;
-      track.addEventListener('load', attachTextTrack);
       video.appendChild(track);
-      setTimeout(attachTextTrack, 0);
+      // track.track is this element's own TextTrack, available immediately --
+      // no ambiguity from looking up video.textTracks[0] positionally, which
+      // could race against the previous lesson's track being removed/replaced
+      activeTextTrack = track.track;
+      activeTextTrack.mode = 'hidden';
+      activeTextTrack.addEventListener('cuechange', renderActiveCues);
     }
 
     const entry = state.progress.lessons[lesson.id];
