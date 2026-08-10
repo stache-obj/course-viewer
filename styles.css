@@ -630,7 +630,7 @@ video::cue { opacity: 0; }
    inner .combo-btns wrapper, not .combo-group itself, so it doesn't clip
    the absolutely-positioned popover that sits alongside it. */
 .combo-group { display: flex; align-items: stretch; }
-.bg-music-group { margin-left: 18px; }
+.bg-music-group { margin-left: 9px; }
 .combo-btns {
   display: flex; align-items: stretch;
   background: rgba(255,255,255,0.08);
