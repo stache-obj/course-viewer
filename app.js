@@ -71,6 +71,45 @@
   let dirty = false;
 
   // =====================================================================
+  // REMEMBERED FOLDER -- caches the picked FileSystemDirectoryHandle in
+  // IndexedDB so a returning visitor doesn't have to browse to their
+  // course folder again. No separate "reconnect" screen or copy change --
+  // the picker stays exactly one button; this just makes that button (or
+  // the initial load, if the browser still trusts the permission) skip
+  // straight past the file-tree navigation.
+  // =====================================================================
+  const DB_NAME = 'course-tool';
+  const STORE_NAME = 'handles';
+  const HANDLE_KEY = 'courseDir';
+
+  function idbOpen() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(STORE_NAME);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function idbGet(key) {
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const req = tx.objectStore(STORE_NAME).get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function idbSet(key, value) {
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put(value, key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // =====================================================================
   // METADATA (progress / notes / preferences / durations) -- read/write
   // directly against metadata/ inside the picked course folder, same
   // shape and defaults as the old server ever wrote to disk.
@@ -268,17 +307,30 @@
       const manifest = await scanCourse(dirHandle);
       if (manifest.chapters.length === 0) {
         pickerError.textContent = 'This doesn\'t look like a valid course folder — no "chapter #N" folders with videos were found inside it.';
-        return;
+        return false;
       }
       state.manifest = manifest;
+      await idbSet(HANDLE_KEY, dirHandle);
       await bootApp();
+      return true;
     } catch (e) {
       pickerError.textContent = e.message || 'Could not read that folder.';
+      return false;
     }
   }
 
   chooseFolderBtn.addEventListener('click', async () => {
     try {
+      // try the remembered folder first -- if the browser still trusts it,
+      // this is a quick "allow access to X?" confirm, not a full re-browse
+      const stored = await idbGet(HANDLE_KEY).catch(() => null);
+      if (stored) {
+        const perm = await stored.requestPermission({ mode: 'readwrite' }).catch(() => 'denied');
+        if (perm === 'granted') {
+          await useCourseDir(stored);
+          return;
+        }
+      }
       const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
       await useCourseDir(dirHandle);
     } catch (e) {
@@ -290,6 +342,17 @@
     if (!supportsFSA) {
       pickerUnsupported.hidden = false;
       chooseFolderBtn.disabled = true;
+      showPickerScreen();
+      return;
+    }
+    // fully silent path: if the browser still trusts the last-used folder
+    // with no prompt needed at all, skip the picker screen entirely
+    const stored = await idbGet(HANDLE_KEY).catch(() => null);
+    if (stored) {
+      try {
+        const perm = await stored.queryPermission({ mode: 'readwrite' });
+        if (perm === 'granted' && (await useCourseDir(stored))) return;
+      } catch {}
     }
     showPickerScreen();
   }
