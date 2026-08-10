@@ -212,10 +212,11 @@
     const ext = extOf(fileName);
     return ext ? fileName.slice(0, -ext.length) : fileName;
   }
+  const SUBTITLE_EXT = ['.vtt', '.srt'];
   function findSubtitleName(entries, videoFileName) {
     const base = stripExt(videoFileName).toLowerCase();
     const match = entries.find(
-      ([name, handle]) => handle.kind === 'file' && extOf(name) === '.vtt' && stripExt(name).toLowerCase().startsWith(base)
+      ([name, handle]) => handle.kind === 'file' && SUBTITLE_EXT.includes(extOf(name)) && stripExt(name).toLowerCase().startsWith(base)
     );
     return match ? match[0] : null;
   }
@@ -518,9 +519,14 @@
   // =====================================================================
   let currentCues = [];
 
+  // Handles both WebVTT (period ms separator, "WEBVTT" header) and SRT
+  // (comma ms separator, no header) -- this course ships a mix of both,
+  // and the two formats are otherwise close enough that one parser
+  // covers both: numbered/labeled blocks are skipped automatically since
+  // this only ever looks for lines matching the timestamp pattern.
   function parseVtt(text) {
     const lines = text.replace(/\r\n/g, '\n').split('\n');
-    const timeRe = /(?:(\d{2}):)?(\d{2}):(\d{2})\.(\d{3})\s*-->\s*(?:(\d{2}):)?(\d{2}):(\d{2})\.(\d{3})/;
+    const timeRe = /(?:(\d{2}):)?(\d{2}):(\d{2})[.,](\d{3})\s*-->\s*(?:(\d{2}):)?(\d{2}):(\d{2})[.,](\d{3})/;
     const toSeconds = (h, m, s, ms) => (h ? parseInt(h, 10) : 0) * 3600 + parseInt(m, 10) * 60 + parseInt(s, 10) + parseInt(ms, 10) / 1000;
     const cues = [];
     let i = 0;
