@@ -1,0 +1,303 @@
+{
+  "driveLink": null,
+  "courseName": "how to make your first short film",
+  "chapters": [
+    {
+      "name": "chapter #0 - thank you",
+      "children": [
+        {
+          "type": "video",
+          "name": "chapter #0 -  thank you!"
+        }
+      ]
+    },
+    {
+      "name": "chapter #1 - pre-production",
+      "children": [
+        {
+          "type": "video",
+          "name": "chapter #1 - pre production - managing expectations"
+        },
+        {
+          "type": "video",
+          "name": "chapter #1.1 (story time)"
+        },
+        {
+          "type": "video",
+          "name": "chapter #1.2 - practising pre production"
+        },
+        {
+          "type": "video",
+          "name": "chapter #1.3 - importance of an instruction manual (collecting references preaching)"
+        },
+        {
+          "type": "video",
+          "name": "chapter #1.4 - Collecting References@@@@@"
+        },
+        {
+          "type": "video",
+          "name": "chapter #1.5 - storyboard preaching"
+        },
+        {
+          "type": "group",
+          "name": "chapter #1.6 - practising storyboard",
+          "children": [
+            {
+              "type": "video",
+              "name": "#1.6.1 - 3d references"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.2 - music"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.3 - 2d skeleton edit"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.4 - storyboard of first shot"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.5 - story board for 2,3,4,5"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.6 - storyboard 6,7,8,9"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.7 - storyboard 10,11,12"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.8 storyboard last shot 13"
+            },
+            {
+              "type": "video",
+              "name": "#1.6.9 - final 4 shot storyboarding"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "chapter #2 - production",
+      "children": [
+        {
+          "type": "video",
+          "name": "chapter #2 - production preaching"
+        },
+        {
+          "type": "video",
+          "name": "chapter #2.1 - sorry to disappoint you"
+        },
+        {
+          "type": "group",
+          "name": "chapter #2.2 - practising production",
+          "children": [
+            {
+              "type": "video",
+              "name": "#2.2.1 - making tea shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.2 - making door shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.3 - making lemonchili shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.4 - rickshaw shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.5 - cricket shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.6 - bangle shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.7 - nandini shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.8 - aarti shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.9 - sewing shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.10 - diwali shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.11 - truck shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.12 -tabla shots"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.13 - elephant"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.14 -  wedding wall shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.15 - farmer shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.16 - snow shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.17 - template and samosa"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.18 - dosa shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.19 - mint chaas"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.20 - biriyani"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.21 - dal roti shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.22 - paan shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.23 - coconut water shot"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.24 - jalebi"
+            },
+            {
+              "type": "video",
+              "name": "#2.2.25 - paani puri"
+            }
+          ]
+        },
+        {
+          "type": "video",
+          "name": "chapter #2.3 - draft2 (importance of break)"
+        },
+        {
+          "type": "group",
+          "name": "chapter #2.4 - practising draft2",
+          "children": [
+            {
+              "type": "video",
+              "name": "chapter #2.4.1 - noting down the needed changes"
+            },
+            {
+              "type": "video",
+              "name": "chapter #2.4.2 -fixing tea shot"
+            },
+            {
+              "type": "video",
+              "name": "chapter #2.4.3 - door shot changes"
+            },
+            {
+              "type": "video",
+              "name": "chapter #2.4.4 - fixing cricket and chilli lemon shot"
+            },
+            {
+              "type": "video",
+              "name": "chapter #2.4.5 - auto shot fixes"
+            },
+            {
+              "type": "video",
+              "name": "chapter #2.4.6 - cow changes"
+            },
+            {
+              "type": "video",
+              "name": "chapter #2.4.7 - farmer shot changes"
+            },
+            {
+              "type": "video",
+              "name": "chapter #2.4.8 - food montage changes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "chapter #3 - post-production",
+      "children": [
+        {
+          "type": "video",
+          "name": "chapter #3 - post production"
+        },
+        {
+          "type": "video",
+          "name": "chapter #3.1 - color grading@@@@@@@@"
+        },
+        {
+          "type": "video",
+          "name": "chapter #3.2 - sound design@@@@@@@@"
+        },
+        {
+          "type": "video",
+          "name": "chapter #3.3 - post processing@@@@@@@"
+        }
+      ]
+    },
+    {
+      "name": "chapter #4 - post-post production",
+      "children": [
+        {
+          "type": "video",
+          "name": "chapter #4.1 (post-post production--draft3)"
+        },
+        {
+          "type": "video",
+          "name": "chapter #4.2 - draft 3"
+        }
+      ]
+    },
+    {
+      "name": "chapter #5 - titlecard design (bonus)",
+      "children": [
+        {
+          "type": "video",
+          "name": "chapter #5 - bonus titlecard chapter"
+        }
+      ]
+    },
+    {
+      "name": "chapter #6 - the release",
+      "children": [
+        {
+          "type": "video",
+          "name": "chapter #6 - (release)"
+        },
+        {
+          "type": "video",
+          "name": "chapter #6.1 - incredible india"
+        }
+      ]
+    }
+  ]
+}

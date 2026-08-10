@@ -7,7 +7,7 @@
 <!-- GitHub Pages caches these for 10min and browsers cache them further on
      top of that -- bump ?v=N on both this and the </body> script tag any
      time app.js or styles.css changes, or updates won't reach visitors -->
-<link rel="stylesheet" href="styles.css?v=6">
+<link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 
@@ -76,6 +76,11 @@
           </svg>
           <span class="theme-text" id="themeText">Light mode</span>
           <span class="theme-track"><span class="theme-knob"></span></span>
+        </button>
+
+        <button class="topbar-box control-single update-course-btn" id="updateCourseBtn" data-state="checking" title="Checks your course folder against the latest published structure">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          <span id="updateCourseLabel">Checking…</span>
         </button>
 
         <button class="topbar-box control-single reset-btn" id="resetCourseBtn" title="Erase all progress, notes, and preferences">
@@ -375,6 +380,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

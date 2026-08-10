@@ -195,6 +195,15 @@ svg { display: block; }
 
 .reset-btn:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
 
+.update-course-btn[data-state="checking"],
+.update-course-btn[data-state="up-to-date"] {
+  opacity: 0.55; cursor: default; pointer-events: none;
+}
+.update-course-btn[data-state="outdated"] {
+  color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft);
+}
+.update-course-btn[data-state="outdated"]:hover { background: var(--accent); color: #fff; }
+
 .icon-x {
   background: transparent; border: none; color: var(--text-dim);
   width: 32px; height: 32px; border-radius: 8px;

@@ -404,6 +404,7 @@
     applyPrefs();
     renderChapterList();
     probeUnknownDurations();
+    checkCourseUpToDate();
 
     let toOpen = null;
     if (state.progress.lastLessonId) toOpen = findLessonById(state.progress.lastLessonId);
@@ -1029,6 +1030,58 @@
     applyTheme();
     markDirty();
     saveNow();
+  });
+
+  // =====================================================================
+  // UPDATE COURSE -- compares the locally picked folder's structure
+  // against a manually-maintained reference JSON published in this same
+  // repo, so buyers can tell when a newer version of the course exists
+  // without any of us needing to build real update-delivery machinery.
+  // =====================================================================
+  const REFERENCE_STRUCTURE_URL = 'https://raw.githubusercontent.com/stache-obj/course-viewer/master/course-structure.json';
+  const updateCourseBtn = document.getElementById('updateCourseBtn');
+  const updateCourseLabel = document.getElementById('updateCourseLabel');
+
+  function toComparableShape(items) {
+    return items.map((it) => it.type === 'video'
+      ? { type: 'video', name: it.name }
+      : { type: 'group', name: it.name, children: toComparableShape(it.children) });
+  }
+
+  async function checkCourseUpToDate() {
+    try {
+      const res = await fetch(REFERENCE_STRUCTURE_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error('reference structure not reachable');
+      const ref = await res.json();
+
+      const localShape = state.manifest.chapters.map((ch) => ({ name: ch.name, children: toComparableShape(ch.children) }));
+      const refShape = (ref.chapters || []).map((ch) => ({ name: ch.name, children: ch.children }));
+      const upToDate = JSON.stringify(localShape) === JSON.stringify(refShape);
+
+      if (upToDate) {
+        updateCourseBtn.dataset.state = 'up-to-date';
+        updateCourseLabel.textContent = 'Course is up to date';
+        updateCourseBtn.title = 'Your course folder matches the latest published structure';
+      } else {
+        updateCourseBtn.dataset.state = 'outdated';
+        updateCourseLabel.textContent = 'Update Course';
+        updateCourseBtn.title = 'A newer version of the course is available';
+        updateCourseBtn.dataset.driveLink = ref.driveLink || '';
+      }
+    } catch (e) {
+      // can't verify (offline, reference not published yet, GitHub down) --
+      // default to not alarming buyers with an update prompt we can't
+      // actually confirm is real
+      updateCourseBtn.dataset.state = 'up-to-date';
+      updateCourseLabel.textContent = 'Course is up to date';
+      updateCourseBtn.title = 'Could not check for updates';
+    }
+  }
+
+  updateCourseBtn.addEventListener('click', () => {
+    if (updateCourseBtn.dataset.state !== 'outdated') return;
+    const link = updateCourseBtn.dataset.driveLink;
+    if (link) window.open(link, '_blank', 'noopener');
   });
 
   document.getElementById('resetCourseBtn').addEventListener('click', async () => {
