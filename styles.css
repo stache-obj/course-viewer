@@ -70,8 +70,6 @@
 
   --discord: #5865f2;
   --discord-hover: #4752c4;
-  --instagram: #c1327a;
-  --instagram-hover: #a3265f;
 
   --radius: 14px;
   --radius-sm: 9px;
@@ -276,7 +274,7 @@ svg { display: block; }
 }
 
 /* ===================================================================
-   BRAND BUTTONS (discord / instagram) — solid brand colour, white glyph
+   BRAND BUTTONS (discord) — solid brand colour, white glyph
    =================================================================== */
 .brand-btn {
   display: flex; align-items: center; gap: 8px;
@@ -293,8 +291,6 @@ svg { display: block; }
 .brand-ico { width: 16px; height: 16px; flex-shrink: 0; color: #fff; }
 .brand-btn.discord { background: var(--discord); }
 .brand-btn.discord:hover { background: var(--discord-hover); }
-.brand-btn.instagram { background: var(--instagram); }
-.brand-btn.instagram:hover { background: var(--instagram-hover); }
 
 /* ===================================================================
    FOLDER PICKER
@@ -617,7 +613,23 @@ video::cue { opacity: 0; }
 
 /* ---- popovers ---- */
 .menu-group { position: relative; }
-.bg-music-group { display: flex; align-items: center; gap: 2px; }
+
+/* combo-group: two ctrl-btns that read as one unified element -- hovering
+   either half highlights both together, but each keeps its own click
+   behaviour (toggle vs. opening its popover). Used for CC+subtitle-settings
+   and BG Music+its settings. The rounded/clipped treatment lives on the
+   inner .combo-btns wrapper, not .combo-group itself, so it doesn't clip
+   the absolutely-positioned popover that sits alongside it. */
+.combo-group { display: flex; align-items: stretch; }
+.combo-btns {
+  display: flex; align-items: stretch;
+  border-radius: 8px; overflow: hidden;
+  transition: background 0.15s var(--ease);
+}
+.combo-btns .ctrl-btn { border-radius: 0; }
+.combo-btns .ctrl-btn:hover { background: transparent; }
+.combo-btns:hover { background: rgba(255,255,255,0.16); }
+.combo-btns > .ctrl-btn + .ctrl-btn { border-left: 1px solid rgba(255,255,255,0.14); }
 .popover {
   position: absolute; bottom: 46px; right: 0;
   background: #16161a;

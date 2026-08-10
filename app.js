@@ -40,7 +40,7 @@
       volume: 1,
       playbackRate: 1,
       subtitlesOn: true,
-      uiScale: 70,
+      uiScale: 100,
       expandState: {},
       bgMusicOn: false,
       bgMusicVolume: 0.5,
@@ -58,7 +58,7 @@
     notes: { notes: [] },
     prefs: {
       darkMode: true, theaterMode: false, volume: 1,
-      playbackRate: 1, subtitlesOn: true, uiScale: 70,
+      playbackRate: 1, subtitlesOn: true, uiScale: 100,
       expandState: {},
       subtitle: { ...SUB_DEFAULTS },
       bgMusicOn: false, bgMusicVolume: 0.5, bgMusicSpeed: 1,
@@ -362,12 +362,13 @@
   // =====================================================================
   async function loadBgMusicFile() {
     try {
-      const fh = await metaDirHandle.getFileHandle('bg-music.mp3');
+      const assetsDir = await metaDirHandle.getDirectoryHandle('assets');
+      const fh = await assetsDir.getFileHandle('bg-music.mp3');
       const file = await fh.getFile();
       bgMusicAudio.src = URL.createObjectURL(file);
     } catch {
-      // no bg-music.mp3 shipped with this course -- the toggle just won't
-      // have anything audible to play, which is fine
+      // no metadata/assets/bg-music.mp3 shipped with this course -- the
+      // toggle just won't have anything audible to play, which is fine
     }
   }
 
@@ -876,7 +877,7 @@
       player.style.height = '';
       return;
     }
-    const zoom = (state.prefs.uiScale || 70) / 100;
+    const zoom = (state.prefs.uiScale || 100) / 100;
     const topbarBottom = document.querySelector('.topbar').getBoundingClientRect().bottom;
     const bottomBuffer = 40; // real screen px of breathing room below the player
     const availableRealPx = window.innerHeight - topbarBottom - bottomBuffer;
@@ -977,7 +978,7 @@
     ccBtn.classList.toggle('active', state.prefs.subtitlesOn !== false);
     applySubtitleStyles();
     syncSubtitleControls();
-    applyUiScale(state.prefs.uiScale || 70);
+    applyUiScale(state.prefs.uiScale || 100);
     applyBgMusicPrefs();
     dirty = false;
   }
@@ -1029,11 +1030,11 @@
     syncTheaterPlayerHeight();
   }
   uiScaleDownBtn.addEventListener('click', () => {
-    applyUiScale((state.prefs.uiScale || 70) - UI_SCALE_STEP);
+    applyUiScale((state.prefs.uiScale || 100) - UI_SCALE_STEP);
     markDirty();
   });
   uiScaleUpBtn.addEventListener('click', () => {
-    applyUiScale((state.prefs.uiScale || 70) + UI_SCALE_STEP);
+    applyUiScale((state.prefs.uiScale || 100) + UI_SCALE_STEP);
     markDirty();
   });
 

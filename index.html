@@ -7,7 +7,7 @@
 <!-- GitHub Pages caches these for 10min and browsers cache them further on
      top of that -- bump ?v=N on both this and the </body> script tag any
      time app.js or styles.css changes, or updates won't reach visitors -->
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
@@ -60,7 +60,7 @@
         <div class="topbar-box ui-scale" id="uiScale" title="Scale the interface up or down">
           <span class="ui-scale-label">UI Scale</span>
           <button class="ui-scale-btn" id="uiScaleDown" aria-label="Decrease UI scale">−</button>
-          <span class="ui-scale-val" id="uiScaleVal">70</span>
+          <span class="ui-scale-val" id="uiScaleVal">100</span>
           <button class="ui-scale-btn" id="uiScaleUp" aria-label="Increase UI scale">+</button>
         </div>
 
@@ -87,15 +87,6 @@
           <svg class="brand-ico" viewBox="0 0 256 227" fill="currentColor"><path d="M216.856339,16.5966031 C200.285002,8.84328665 182.566144,3.2084988 164.041564,0 C161.766523,4.11318106 159.108624,9.64549908 157.276099,14.0464379 C137.583995,11.0849896 118.072967,11.0849896 98.7430163,14.0464379 C96.9108417,9.64549908 94.1925838,4.11318106 91.8971895,0 C73.3526068,3.2084988 55.6133949,8.86399117 39.0420583,16.6376612 C5.61752293,67.146514 -3.4433191,116.400813 1.08711069,164.955721 C23.2560196,181.510915 44.7403634,191.567697 65.8621325,198.148576 C71.0772151,190.971126 75.7283628,183.341335 79.7352139,175.300261 C72.104019,172.400575 64.7949724,168.822202 57.8887866,164.667963 C59.7209612,163.310589 61.5131304,161.891452 63.2445898,160.431257 C105.36741,180.133187 151.134928,180.133187 192.754523,160.431257 C194.506336,161.891452 196.298154,163.310589 198.110326,164.667963 C191.183787,168.842556 183.854737,172.420929 176.223542,175.320965 C180.230393,183.341335 184.861538,190.991831 190.096624,198.16893 C211.238746,191.588051 232.743023,181.531619 254.911949,164.955721 C260.227747,108.668201 245.831087,59.8662432 216.856339,16.5966031 Z M85.4738752,135.09489 C72.8290281,135.09489 62.4592217,123.290155 62.4592217,108.914901 C62.4592217,94.5396472 72.607595,82.7145587 85.4738752,82.7145587 C98.3405064,82.7145587 108.709962,94.5189427 108.488529,108.914901 C108.508531,123.290155 98.3405064,135.09489 85.4738752,135.09489 Z M170.525237,135.09489 C157.88039,135.09489 147.510584,123.290155 147.510584,108.914901 C147.510584,94.5396472 157.658606,82.7145587 170.525237,82.7145587 C183.391518,82.7145587 193.761324,94.5189427 193.539891,108.914901 C193.539891,123.290155 183.391518,135.09489 170.525237,135.09489 Z"/></svg>
           <span>Take me to Discord</span>
         </a>
-
-        <a class="brand-btn instagram" id="instagramBtn" href="#" target="_blank" rel="noopener" title="Follow on Instagram">
-          <svg class="brand-ico" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="18">
-            <rect x="18" y="18" width="220" height="220" rx="62"/>
-            <circle cx="128" cy="128" r="54"/>
-            <circle cx="193" cy="63" r="14" fill="currentColor" stroke="none"/>
-          </svg>
-          <span>Take me to Instagram</span>
-        </a>
       </div>
     </header>
 
@@ -109,7 +100,8 @@
           <!-- background music: fully independent of the course video --
                its own volume/speed, never touched by the video's playback
                rate or mute state. src is set dynamically once the course
-               folder's metadata/bg-music.mp3 is resolved to a blob URL. -->
+               folder's metadata/assets/bg-music.mp3 is resolved to a blob
+               URL. -->
           <audio id="bgMusicAudio" loop preload="none"></audio>
 
           <!-- custom subtitle renderer (native track stays hidden) -->
@@ -200,12 +192,13 @@
                 <div class="popover speed-menu" id="speedMenu"></div>
               </div>
 
-              <button class="ctrl-btn cc-btn active" id="ccBtn" aria-label="Toggle subtitles" title="Subtitles (C)" tabindex="-1">CC</button>
-
-              <div class="menu-group">
-                <button class="ctrl-btn" id="subSettingsBtn" title="Subtitle settings" tabindex="-1">
-                  <svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-1.7-1L14.9 3h-3.8l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.8 7.8 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.8 1.7 1l.4 2.6h3.8l.4-2.6c.6-.2 1.2-.6 1.7-1l2.4 1 2-3.4-2-1.6zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
-                </button>
+              <div class="menu-group combo-group">
+                <div class="combo-btns">
+                  <button class="ctrl-btn cc-btn active" id="ccBtn" aria-label="Toggle subtitles" title="Subtitles (C)" tabindex="-1">CC</button>
+                  <button class="ctrl-btn" id="subSettingsBtn" title="Subtitle settings" tabindex="-1">
+                    <svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-1.7-1L14.9 3h-3.8l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.8 7.8 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.8 1.7 1l.4 2.6h3.8l.4-2.6c.6-.2 1.2-.6 1.7-1l2.4 1 2-3.4-2-1.6zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
+                  </button>
+                </div>
 
                 <div class="popover sub-settings" id="subSettingsPanel">
                   <div class="pop-title">Subtitles</div>
@@ -273,12 +266,13 @@
                 </div>
               </div>
 
-              <div class="menu-group bg-music-group">
-                <button class="ctrl-btn cc-btn bg-music-btn" id="bgMusicBtn" aria-label="Toggle background music" title="Background music" tabindex="-1">BG Music</button>
-
-                <button class="ctrl-btn" id="bgMusicSettingsBtn" title="Background music settings" tabindex="-1">
-                  <svg viewBox="0 0 24 24"><path d="M19.4 13a7.8 7.8 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-1.7-1L14.9 3h-3.8l-.4 2.6a7.6 7.6 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.8 7.8 0 0 0 0 2l-2 1.6 2 3.4 2.4-1c.5.4 1.1.8 1.7 1l.4 2.6h3.8l.4-2.6c.6-.2 1.2-.6 1.7-1l2.4 1 2-3.4-2-1.6zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
-                </button>
+              <div class="menu-group combo-group bg-music-group">
+                <div class="combo-btns">
+                  <button class="ctrl-btn cc-btn bg-music-btn" id="bgMusicBtn" aria-label="Toggle background music" title="Background music" tabindex="-1">BG Music</button>
+                  <button class="ctrl-btn" id="bgMusicSettingsBtn" title="Background music settings" tabindex="-1">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+                  </button>
+                </div>
 
                 <div class="popover bg-music-settings" id="bgMusicPanel">
                   <div class="pop-title">Background Music</div>
@@ -381,6 +375,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
