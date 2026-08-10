@@ -43,7 +43,7 @@
       uiScale: 100,
       expandState: {},
       bgMusicOn: false,
-      bgMusicVolume: 0.5,
+      bgMusicVolume: 0.1,
       bgMusicSpeed: 1,
     },
     'durations.json': {},
@@ -61,7 +61,7 @@
       playbackRate: 1, subtitlesOn: true, uiScale: 100,
       expandState: {},
       subtitle: { ...SUB_DEFAULTS },
-      bgMusicOn: false, bgMusicVolume: 0.5, bgMusicSpeed: 1,
+      bgMusicOn: false, bgMusicVolume: 0.1, bgMusicSpeed: 1,
     },
     durations: {},
     currentChapter: null,
@@ -505,10 +505,43 @@
   const mainLayout = document.getElementById('mainLayout');
 
   // =====================================================================
-  // SUBTITLES  (native track hidden; we render cues ourselves so the
-  // user can restyle and reposition them freely)
+  // SUBTITLES -- parsed and matched by hand rather than relying on the
+  // native <track>/TextTrack API. That was the original design, but its
+  // cue-firing turned out to be unreliable across repeated lesson
+  // switches (textTrack mode/readiness has real, hard-to-pin-down timing
+  // quirks in this exact remove-and-recreate-per-lesson usage pattern).
+  // Since this player never uses native caption painting anyway -- cues
+  // are always rendered into our own styled overlay -- there's nothing
+  // the native track machinery was buying us. Parsing the .vtt text
+  // directly and matching against video.currentTime on every timeupdate
+  // sidesteps that whole class of bug.
   // =====================================================================
-  let activeTextTrack = null;
+  let currentCues = [];
+
+  function parseVtt(text) {
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const timeRe = /(?:(\d{2}):)?(\d{2}):(\d{2})\.(\d{3})\s*-->\s*(?:(\d{2}):)?(\d{2}):(\d{2})\.(\d{3})/;
+    const toSeconds = (h, m, s, ms) => (h ? parseInt(h, 10) : 0) * 3600 + parseInt(m, 10) * 60 + parseInt(s, 10) + parseInt(ms, 10) / 1000;
+    const cues = [];
+    let i = 0;
+    while (i < lines.length) {
+      const m = lines[i].match(timeRe);
+      if (m) {
+        const start = toSeconds(m[1], m[2], m[3], m[4]);
+        const end = toSeconds(m[5], m[6], m[7], m[8]);
+        i++;
+        const textLines = [];
+        while (i < lines.length && lines[i].trim() !== '') {
+          textLines.push(lines[i]);
+          i++;
+        }
+        const cueText = textLines.join('\n').replace(/<[^>]+>/g, '').trim();
+        if (cueText) cues.push({ start, end, text: cueText });
+      }
+      i++;
+    }
+    return cues;
+  }
 
   function applySubtitleStyles() {
     const s = state.prefs.subtitle;
@@ -531,17 +564,14 @@
   window.addEventListener('resize', sizeSubtitleLayer);
 
   function renderActiveCues() {
-    if (!activeTextTrack || state.prefs.subtitlesOn === false) {
+    if (!currentCues.length || state.prefs.subtitlesOn === false) {
       subtitleCue.classList.remove('visible');
       return;
     }
-    const cues = activeTextTrack.activeCues;
-    if (!cues || cues.length === 0) {
-      subtitleCue.classList.remove('visible');
-      return;
-    }
-    const text = Array.from(cues)
-      .map((c) => c.text.replace(/<[^>]+>/g, ''))
+    const t = video.currentTime;
+    const text = currentCues
+      .filter((c) => t >= c.start && t <= c.end)
+      .map((c) => c.text)
       .join('\n')
       .trim();
     if (!text) {
@@ -696,7 +726,8 @@
       seekBuffered.style.width = (video.duration ? (end / video.duration) * 100 : 0) + '%';
     }
   }
-  video.addEventListener('timeupdate', () => { updateSeekUI(); trackWatchProgress(); });
+  video.addEventListener('timeupdate', () => { updateSeekUI(); trackWatchProgress(); renderActiveCues(); });
+  video.addEventListener('seeked', renderActiveCues);
   video.addEventListener('loadedmetadata', () => {
     updateSeekUI();
     renderNoteMarkers();
@@ -1051,19 +1082,16 @@
   // LESSON LOADING
   // =====================================================================
   let currentVideoUrl = null;
-  let currentSubtitleUrl = null;
 
   async function loadLesson(chapter, lesson, isInitial) {
     state.currentChapter = chapter;
     state.currentLesson = lesson;
     expandChapterFully(chapter);
 
-    Array.from(video.querySelectorAll('track')).forEach((t) => t.remove());
-    activeTextTrack = null;
+    currentCues = [];
     subtitleCue.classList.remove('visible');
 
     if (currentVideoUrl) URL.revokeObjectURL(currentVideoUrl);
-    if (currentSubtitleUrl) { URL.revokeObjectURL(currentSubtitleUrl); currentSubtitleUrl = null; }
 
     const videoFile = await lesson.fileHandle.getFile();
     currentVideoUrl = URL.createObjectURL(videoFile);
@@ -1072,20 +1100,8 @@
 
     if (lesson.subtitleHandle) {
       const subFile = await lesson.subtitleHandle.getFile();
-      currentSubtitleUrl = URL.createObjectURL(subFile);
-      const track = document.createElement('track');
-      track.kind = 'subtitles';
-      track.label = 'English';
-      track.srclang = 'en';
-      track.src = currentSubtitleUrl;
-      track.default = true;
-      video.appendChild(track);
-      // track.track is this element's own TextTrack, available immediately --
-      // no ambiguity from looking up video.textTracks[0] positionally, which
-      // could race against the previous lesson's track being removed/replaced
-      activeTextTrack = track.track;
-      activeTextTrack.mode = 'hidden';
-      activeTextTrack.addEventListener('cuechange', renderActiveCues);
+      currentCues = parseVtt(await subFile.text());
+      renderActiveCues();
     }
 
     const entry = state.progress.lessons[lesson.id];
