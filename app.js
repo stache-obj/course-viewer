@@ -1653,7 +1653,7 @@
   const allNotesBody = document.getElementById('allNotesBody');
   const closeAllNotesBtn = document.getElementById('closeAllNotesBtn');
 
-  allNotesBtn.addEventListener('click', () => { renderAllNotes(); allNotesModal.hidden = false; });
+  allNotesBtn.addEventListener('click', () => { video.pause(); renderAllNotes(); allNotesModal.hidden = false; });
   closeAllNotesBtn.addEventListener('click', () => (allNotesModal.hidden = true));
   allNotesModal.addEventListener('click', (e) => { if (e.target === allNotesModal) allNotesModal.hidden = true; });
 
@@ -1663,12 +1663,13 @@
       allNotesBody.innerHTML = '<div class="notes-empty">You haven\'t taken any notes yet.</div>';
       return;
     }
-    const order = state.manifest ? state.manifest.chapters.map((c) => c.id) : [];
+    const chapterOrder = state.manifest ? state.manifest.chapters.map((c) => c.id) : [];
+    const lessonOrder = state.manifest ? allVideosFlat().map((v) => v.id) : [];
     const byChapter = {};
     for (const n of state.notes.notes) (byChapter[n.chapterId] = byChapter[n.chapterId] || []).push(n);
 
     Object.keys(byChapter)
-      .sort((a, b) => order.indexOf(a) - order.indexOf(b))
+      .sort((a, b) => chapterOrder.indexOf(a) - chapterOrder.indexOf(b))
       .forEach((chapterId) => {
         const notes = byChapter[chapterId];
         const group = document.createElement('div');
@@ -1677,14 +1678,33 @@
         title.className = 'modal-chapter-title';
         title.textContent = notes[0].chapterName;
         group.appendChild(title);
-        notes
-          .sort((a, b) => a.timestamp - b.timestamp)
-          .forEach((n) => {
-            const item = buildNoteItem(n);
-            item.addEventListener('click', (e) => {
-              if (!e.target.closest('.note-del')) allNotesModal.hidden = true;
-            });
-            group.appendChild(item);
+
+        // group again by video within the chapter, so it's clear which
+        // specific lesson each note belongs to, not just the chapter
+        const byLesson = {};
+        for (const n of notes) (byLesson[n.lessonId] = byLesson[n.lessonId] || []).push(n);
+
+        Object.keys(byLesson)
+          .sort((a, b) => lessonOrder.indexOf(a) - lessonOrder.indexOf(b))
+          .forEach((lessonId) => {
+            const lessonNotes = byLesson[lessonId];
+            const lessonGroup = document.createElement('div');
+            lessonGroup.className = 'modal-lesson-group';
+            const lessonTitle = document.createElement('div');
+            lessonTitle.className = 'modal-lesson-title';
+            lessonTitle.textContent = prettyName(lessonNotes[0].lessonName || '');
+            lessonGroup.appendChild(lessonTitle);
+
+            lessonNotes
+              .sort((a, b) => a.timestamp - b.timestamp)
+              .forEach((n) => {
+                const item = buildNoteItem(n, false);
+                item.addEventListener('click', (e) => {
+                  if (!e.target.closest('.note-del')) allNotesModal.hidden = true;
+                });
+                lessonGroup.appendChild(item);
+              });
+            group.appendChild(lessonGroup);
           });
         allNotesBody.appendChild(group);
       });

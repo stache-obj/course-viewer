@@ -963,6 +963,12 @@ video::cue { opacity: 0; }
   color: var(--text-dim); margin-bottom: 10px; letter-spacing: 0.1em;
 }
 .modal-chapter-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.modal-lesson-group { margin: 0 0 16px 4px; }
+.modal-lesson-group:last-child { margin-bottom: 0; }
+.modal-lesson-title {
+  font-size: 12.5px; font-weight: 650;
+  color: var(--accent); margin-bottom: 8px;
+}
 
 /* ===================================================================
    RESPONSIVE
