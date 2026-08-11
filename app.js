@@ -313,12 +313,15 @@
   async function useCourseDir(dirHandle) {
     pickerError.textContent = '';
     try {
-      await ensureMetadata(dirHandle);
+      // validate BEFORE creating metadata/ -- an accidental wrong-folder
+      // pick (e.g. a single chapter subfolder) should never leave a stray
+      // metadata folder behind just because it got rejected afterward
       const manifest = await scanCourse(dirHandle);
       if (manifest.chapters.length === 0) {
         pickerError.textContent = 'This doesn\'t look like a valid course folder — no "chapter #N" folders with videos were found inside it.';
         return false;
       }
+      await ensureMetadata(dirHandle);
       state.manifest = manifest;
       await idbSet(HANDLE_KEY, dirHandle);
       await bootApp();
@@ -363,6 +366,15 @@
         const perm = await stored.queryPermission({ mode: 'readwrite' });
         if (perm === 'granted' && (await useCourseDir(stored))) return;
       } catch {}
+      // browser still remembers the folder but wants a fresh confirm --
+      // that confirm dialog can only ever be triggered by a direct click
+      // (browsers block permission prompts on page load with no gesture,
+      // on purpose, so sites can't spam them), so there's no way to skip
+      // this one click entirely. Label the button so that click is
+      // obviously the only remaining step, not a separate "start over"
+      // action, since chooseFolderBtn's own handler already tries this
+      // exact stored handle first before falling back to a full picker.
+      chooseFolderBtn.textContent = 'Continue with "' + stored.name + '"';
     }
     showPickerScreen();
   }
