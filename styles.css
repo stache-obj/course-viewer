@@ -849,6 +849,8 @@ video::cue { opacity: 0; }
 .progress-meta { min-width: 0; }
 .progress-title { font-size: 15px; font-weight: 600; letter-spacing: 0.01em; }
 .progress-hours { font-size: 12.5px; color: var(--text-dim); margin-top: 2px; }
+.progress-hours .time-left { font-weight: 700; color: var(--text); }
+.progress-hours .time-sep { font-style: italic; opacity: 0.75; margin: 0 1px; }
 .progress-track { height: 6px; border-radius: 999px; background: var(--panel-hover); overflow: hidden; }
 .progress-fill { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width 0.4s var(--ease); }
 

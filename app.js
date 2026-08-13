@@ -1529,7 +1529,10 @@
 
     if (!total) { progressHoursEl.textContent = 'calculating…'; return; }
     const leftSec = Math.max(0, total - watched);
-    progressHoursEl.textContent = fmtHrsMins(leftSec) + ' left of ' + fmtHrsMins(total);
+    progressHoursEl.innerHTML =
+      '<span class="time-left">' + fmtHrsMins(leftSec) + '</span>' +
+      ' <span class="time-sep">left of</span> ' +
+      fmtHrsMins(total);
   }
 
   // "20hrs 7mins" instead of a decimal-hours figure like "20.7hrs", which
