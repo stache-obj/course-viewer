@@ -1260,10 +1260,27 @@
     renderNotesForCurrentLesson();
     markDirty();
 
-    const activeRow = document.querySelector('.lesson-row.active');
-    if (activeRow) activeRow.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+    ensureActiveRowVisible();
 
     if (!isInitial) video.play().catch(() => {});
+  }
+
+  // Keeps the active lesson visible inside the chapter-list panel without
+  // using the native scrollIntoView -- that walks every scrollable
+  // ancestor (this list, the sidebar, the page) and, right after a DOM
+  // rebuild from expanding/collapsing chapters, could end up scrolling
+  // more than one of them at once. Touching only this container's own
+  // scrollTop keeps the effect local and predictable.
+  function ensureActiveRowVisible() {
+    const activeRow = document.querySelector('.lesson-row.active');
+    if (!activeRow || !chapterListEl) return;
+    const rowRect = activeRow.getBoundingClientRect();
+    const listRect = chapterListEl.getBoundingClientRect();
+    if (rowRect.top < listRect.top) {
+      chapterListEl.scrollTop -= (listRect.top - rowRect.top);
+    } else if (rowRect.bottom > listRect.bottom) {
+      chapterListEl.scrollTop += (rowRect.bottom - listRect.bottom);
+    }
   }
 
   function reportDurationIfNeeded() {
