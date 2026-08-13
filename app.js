@@ -1608,11 +1608,16 @@
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       saveNoteBtn.click();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelNoteBtn.click();
     }
   });
   cancelNoteBtn.addEventListener('click', () => {
     noteForm.hidden = true;
     if (wasPlayingBeforeNote) video.play().catch(() => {});
+    noteText.blur();
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   });
   noteImage.addEventListener('change', () => {
     const file = noteImage.files[0];
