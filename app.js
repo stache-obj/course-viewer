@@ -1649,6 +1649,8 @@
       renderNotesForCurrentLesson();
       renderNoteMarkers();
       if (wasPlayingBeforeNote) video.play().catch(() => {});
+      noteText.blur();
+      document.getElementById('player').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } finally {
       saveNoteBtn.disabled = false;
     }
