@@ -832,12 +832,14 @@ video::cue { opacity: 0; }
 .sidebar {
   background: var(--panel); border: 1px solid var(--border);
   border-radius: var(--radius); overflow: hidden;
-  align-self: start; position: sticky; top: 92px; box-shadow: var(--shadow-sm);
-  /* isolates this sticky element on its own compositing layer -- without
-     it, Chromium can leave a stale "ghost" copy painted behind when the
-     page is under CSS zoom (UI Scale) and content height changes, e.g.
-     switching lessons/chapters */
-  transform: translateZ(0);
+  align-self: start; box-shadow: var(--shadow-sm);
+  /* NOT position:sticky -- it contains its own scrolling #chapterList,
+     which in turn contains sticky .chapter-head elements. Sticky nested
+     inside sticky-relative-to-page-scroll + its own scroll container is a
+     known Chromium trigger for the sidebar getting painted twice, once at
+     its in-flow position and once at its stuck position ("ghost" copies
+     that are real, clickable, duplicated layout). Keeping this static
+     avoids the whole bug class. */
 }
 .progress-card { padding: 20px; border-bottom: 1px solid var(--border); }
 .progress-ring-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
@@ -873,7 +875,6 @@ video::cue { opacity: 0; }
   display: flex; align-items: center; gap: 11px;
   padding: 13px 18px; background: var(--panel);
   cursor: pointer; transition: background 0.15s var(--ease);
-  transform: translateZ(0);
 }
 .chapter-head:hover { background: var(--panel-alt); }
 .chapter-num {
