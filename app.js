@@ -1263,7 +1263,22 @@
     const activeRow = document.querySelector('.lesson-row.active');
     if (activeRow) activeRow.scrollIntoView({ behavior: 'auto', block: 'nearest' });
 
+    // Chromium can leave a stale "ghost" paint of the sticky sidebar behind
+    // after this reflow when the page is under CSS zoom (UI Scale) -- a
+    // playing video repaints every frame and papers over it, but paused it
+    // lingers forever. Nudging opacity forces a real recomposite/repaint.
+    forceRepaint(document.getElementById('sidebar'));
+
     if (!isInitial) video.play().catch(() => {});
+  }
+
+  function forceRepaint(el) {
+    if (!el) return;
+    const prev = el.style.opacity;
+    el.style.opacity = '0.999';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { el.style.opacity = prev; });
+    });
   }
 
   function reportDurationIfNeeded() {
