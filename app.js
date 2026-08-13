@@ -911,6 +911,10 @@
     player.classList.toggle('is-fullscreen', fs);
     if (!fs) player.classList.remove('drawer-open');
     sizeSubtitleLayer();
+    // Chromium sometimes leaves a stale composited frame of the fullscreen
+    // drawer/topbar visible after the fullscreen transition finishes --
+    // force a real repaint of the whole page once the transition settles.
+    setTimeout(() => forceRepaint(document.body), 50);
   });
   fsChaptersBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -1263,11 +1267,11 @@
     const activeRow = document.querySelector('.lesson-row.active');
     if (activeRow) activeRow.scrollIntoView({ behavior: 'auto', block: 'nearest' });
 
-    // Chromium can leave a stale "ghost" paint of the sticky sidebar behind
-    // after this reflow when the page is under CSS zoom (UI Scale) -- a
-    // playing video repaints every frame and papers over it, but paused it
-    // lingers forever. Nudging opacity forces a real recomposite/repaint.
-    forceRepaint(document.getElementById('sidebar'));
+    // Chromium can leave a stale "ghost" paint of the sidebar/fullscreen
+    // drawer behind after this reflow -- a playing video repaints every
+    // frame and papers over it, but paused it lingers forever. Nudging
+    // opacity forces a real recomposite/repaint.
+    forceRepaint(document.body);
 
     if (!isInitial) video.play().catch(() => {});
   }
@@ -1432,6 +1436,7 @@
       const found = findLessonById(les.id);
       if (found) loadLesson(found.chapter, les);
       player.classList.remove('drawer-open');
+      setTimeout(() => forceRepaint(document.body), 50);
     });
     return row;
   }
