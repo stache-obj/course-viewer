@@ -1260,6 +1260,9 @@
     renderNotesForCurrentLesson();
     markDirty();
 
+    const activeRow = document.querySelector('.lesson-row.active');
+    if (activeRow) activeRow.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+
     if (!isInitial) video.play().catch(() => {});
   }
 
@@ -1654,8 +1657,6 @@
       if (wasPlayingBeforeNote) video.play().catch(() => {});
       noteText.blur();
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-      const chapterListEl = document.getElementById('chapterList');
-      if (chapterListEl) chapterListEl.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       saveNoteBtn.disabled = false;
     }
