@@ -304,6 +304,7 @@
   const pickerError = document.getElementById('pickerError');
   const pickerUnsupported = document.getElementById('pickerUnsupported');
   const chooseFolderBtn = document.getElementById('chooseFolderBtn');
+  const pickDifferentFolderBtn = document.getElementById('pickDifferentFolderBtn');
 
   function showPickerScreen() {
     pickerScreen.classList.add('visible');
@@ -340,12 +341,31 @@
       if (stored) {
         const perm = await stored.requestPermission({ mode: 'readwrite' }).catch(() => 'denied');
         if (perm === 'granted') {
-          await useCourseDir(stored);
+          // permission being granted doesn't mean the folder still exists
+          // on disk (moved/deleted/renamed) -- if it fails, offer a way out
+          const ok = await useCourseDir(stored);
+          if (!ok) pickDifferentFolderBtn.hidden = false;
           return;
         }
       }
       const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
       await useCourseDir(dirHandle);
+    } catch (e) {
+      if (e.name !== 'AbortError') pickerError.textContent = e.message;
+    }
+  });
+
+  // Always available whenever a remembered folder exists (missing/moved
+  // folder, wrong folder picked, or just wanting to switch courses) --
+  // opens a full picker and overwrites the remembered handle on success.
+  pickDifferentFolderBtn.addEventListener('click', async () => {
+    try {
+      const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      const ok = await useCourseDir(dirHandle);
+      if (ok) {
+        pickDifferentFolderBtn.hidden = true;
+        chooseFolderBtn.textContent = 'Choose course folder…';
+      }
     } catch (e) {
       if (e.name !== 'AbortError') pickerError.textContent = e.message;
     }
@@ -375,6 +395,10 @@
       // action, since chooseFolderBtn's own handler already tries this
       // exact stored handle first before falling back to a full picker.
       chooseFolderBtn.textContent = 'Continue with "' + stored.name + '"';
+      // that stored folder may no longer exist at all (moved/deleted/
+      // renamed) -- always offer a way to pick a different one instead of
+      // being stuck retrying the same broken handle
+      pickDifferentFolderBtn.hidden = false;
     }
     showPickerScreen();
   }
