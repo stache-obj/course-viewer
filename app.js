@@ -1223,7 +1223,7 @@
   // =====================================================================
   let currentVideoUrl = null;
 
-  async function loadLesson(chapter, lesson, isInitial) {
+  async function loadLesson(chapter, lesson, isInitial, seekTo) {
     state.currentChapter = chapter;
     state.currentLesson = lesson;
     expandChapterFully(chapter);
@@ -1232,6 +1232,17 @@
     subtitleCue.classList.remove('visible');
 
     if (currentVideoUrl) URL.revokeObjectURL(currentVideoUrl);
+
+    // Registered before any await so it's never at risk of missing a
+    // loadedmetadata event that fires while this function is still running.
+    const entry = state.progress.lessons[lesson.id];
+    const resumeAt = seekTo != null ? seekTo : (entry && entry.lastPosition);
+    if (resumeAt && resumeAt > 1) {
+      video.addEventListener('loadedmetadata', function onceResume() {
+        video.currentTime = seekTo != null ? seekTo : Math.min(resumeAt, (video.duration || resumeAt) - 0.5);
+        video.removeEventListener('loadedmetadata', onceResume);
+      });
+    }
 
     const videoFile = await lesson.fileHandle.getFile();
     currentVideoUrl = URL.createObjectURL(videoFile);
@@ -1242,15 +1253,6 @@
       const subFile = await lesson.subtitleHandle.getFile();
       currentCues = parseVtt(await subFile.text());
       renderActiveCues();
-    }
-
-    const entry = state.progress.lessons[lesson.id];
-    const resumeAt = entry && entry.lastPosition;
-    if (resumeAt && resumeAt > 1) {
-      video.addEventListener('loadedmetadata', function onceResume() {
-        video.currentTime = Math.min(resumeAt, (video.duration || resumeAt) - 0.5);
-        video.removeEventListener('loadedmetadata', onceResume);
-      });
     }
 
     state.progress.lastLessonId = lesson.id;
@@ -1724,11 +1726,7 @@
     const found = findLessonById(n.lessonId);
     if (!found) return;
     if (!state.currentLesson || state.currentLesson.id !== n.lessonId) {
-      loadLesson(found.chapter, found.lesson, true);
-      video.addEventListener('loadedmetadata', function onceSeek() {
-        video.currentTime = n.timestamp;
-        video.removeEventListener('loadedmetadata', onceSeek);
-      });
+      loadLesson(found.chapter, found.lesson, true, n.timestamp);
     } else {
       video.currentTime = n.timestamp;
     }
