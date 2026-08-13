@@ -1045,14 +1045,24 @@
   });
 
   // =====================================================================
-  // UPDATE COURSE -- compares the locally picked folder's structure
-  // against a manually-maintained reference JSON published in this same
-  // repo, so buyers can tell when a newer version of the course exists
-  // without any of us needing to build real update-delivery machinery.
+  // UPDATE COURSE -- checks the locally picked folder against two
+  // manually-maintained reference JSONs published in this same repo:
+  //   - course-structure-default.json: the complete baseline every buyer's
+  //     download should contain. Anything missing against THIS means a
+  //     broken/incomplete download, not just an old version -- checked
+  //     first, since there's no point telling someone to "update" when
+  //     they're actually missing content from day one.
+  //   - course-structure.json: the latest published structure. If nothing's
+  //     missing from the baseline but this doesn't match, a newer version
+  //     exists to update to.
   // =====================================================================
-  const REFERENCE_STRUCTURE_URL = 'https://raw.githubusercontent.com/stache-obj/course-viewer/master/course-structure.json';
+  const DEFAULT_STRUCTURE_URL = 'https://raw.githubusercontent.com/stache-obj/course-viewer/master/course-structure-default.json';
+  const LATEST_STRUCTURE_URL = 'https://raw.githubusercontent.com/stache-obj/course-viewer/master/course-structure.json';
   const updateCourseBtn = document.getElementById('updateCourseBtn');
   const updateCourseLabel = document.getElementById('updateCourseLabel');
+  const missingContentModal = document.getElementById('missingContentModal');
+  const missingContentBody = document.getElementById('missingContentBody');
+  const closeMissingContentBtn = document.getElementById('closeMissingContentBtn');
 
   function toComparableShape(items) {
     return items.map((it) => it.type === 'video'
@@ -1060,13 +1070,62 @@
       : { type: 'group', name: it.name, children: toComparableShape(it.children) });
   }
 
+  // every video name under a (sub)tree, flattened, for reporting an
+  // entirely-missing chapter/subfolder as a full list of missing videos
+  // rather than just the folder's own name
+  function flattenVideoNames(items, pathPrefix) {
+    let out = [];
+    for (const it of items) {
+      if (it.type === 'video') out.push(pathPrefix + it.name);
+      else out = out.concat(flattenVideoNames(it.children, pathPrefix + it.name + ' > '));
+    }
+    return out;
+  }
+
+  // returns every video present in refItems but absent (by name) from
+  // localItems, at any depth -- recurses into matched groups to catch
+  // partial gaps (a chapter that exists but is missing one lesson)
+  function findMissing(refItems, localItems, pathPrefix) {
+    const localByName = new Map(localItems.map((it) => [it.name, it]));
+    let missing = [];
+    for (const r of refItems) {
+      const match = localByName.get(r.name);
+      const isVideo = r.type === 'video';
+      if (!match) {
+        if (isVideo) missing.push(pathPrefix + r.name);
+        else missing = missing.concat(flattenVideoNames(r.children, pathPrefix + r.name + ' > '));
+      } else if (!isVideo) {
+        missing = missing.concat(findMissing(r.children, match.children || [], pathPrefix + r.name + ' > '));
+      }
+    }
+    return missing;
+  }
+
   async function checkCourseUpToDate() {
+    const localShape = state.manifest.chapters.map((ch) => ({ name: ch.name, children: toComparableShape(ch.children) }));
+
     try {
-      const res = await fetch(REFERENCE_STRUCTURE_URL, { cache: 'no-store' });
+      const defRes = await fetch(DEFAULT_STRUCTURE_URL, { cache: 'no-store' });
+      if (!defRes.ok) throw new Error('default structure not reachable');
+      const def = await defRes.json();
+      const missing = findMissing(def.chapters || [], localShape, '');
+
+      if (missing.length) {
+        updateCourseBtn.dataset.state = 'incomplete';
+        updateCourseLabel.textContent = 'Incomplete Course';
+        updateCourseBtn.title = 'Your course folder is missing content compared to a complete download';
+        updateCourseBtn.dataset.missing = JSON.stringify(missing);
+        return;
+      }
+    } catch (e) {
+      // can't verify completeness -- fall through to the update check
+      // rather than block on a reference that might not be reachable
+    }
+
+    try {
+      const res = await fetch(LATEST_STRUCTURE_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error('reference structure not reachable');
       const ref = await res.json();
-
-      const localShape = state.manifest.chapters.map((ch) => ({ name: ch.name, children: toComparableShape(ch.children) }));
       const refShape = (ref.chapters || []).map((ch) => ({ name: ch.name, children: ch.children }));
       const upToDate = JSON.stringify(localShape) === JSON.stringify(refShape);
 
@@ -1091,10 +1150,20 @@
   }
 
   updateCourseBtn.addEventListener('click', () => {
-    if (updateCourseBtn.dataset.state !== 'outdated') return;
-    const link = updateCourseBtn.dataset.driveLink;
-    if (link) window.open(link, '_blank', 'noopener');
+    const state = updateCourseBtn.dataset.state;
+    if (state === 'incomplete') {
+      const missing = JSON.parse(updateCourseBtn.dataset.missing || '[]');
+      missingContentBody.innerHTML = missing.length
+        ? '<ul class="missing-content-list">' + missing.map((m) => '<li>' + m.replace(/</g, '&lt;') + '</li>').join('') + '</ul>'
+        : '<div class="notes-empty">Nothing missing.</div>';
+      missingContentModal.hidden = false;
+    } else if (state === 'outdated') {
+      const link = updateCourseBtn.dataset.driveLink;
+      if (link) window.open(link, '_blank', 'noopener');
+    }
   });
+  closeMissingContentBtn.addEventListener('click', () => (missingContentModal.hidden = true));
+  missingContentModal.addEventListener('click', (e) => { if (e.target === missingContentModal) missingContentModal.hidden = true; });
 
   document.getElementById('resetCourseBtn').addEventListener('click', async () => {
     const sure = confirm(
@@ -1459,11 +1528,20 @@
     ringFillEl.style.strokeDashoffset = C * (1 - raw / 100);
 
     if (!total) { progressHoursEl.textContent = 'calculating…'; return; }
-    const leftH = Math.max(0, (total - watched) / 3600);
-    const totalH = total / 3600;
-    progressHoursEl.textContent =
-      (leftH < 1 ? Math.round(leftH * 60) + ' min' : leftH.toFixed(1) + ' hrs') +
-      ' left of ' + totalH.toFixed(1) + ' hrs';
+    const leftSec = Math.max(0, total - watched);
+    progressHoursEl.textContent = fmtHrsMins(leftSec) + ' left of ' + fmtHrsMins(total);
+  }
+
+  // "20hrs 7mins" instead of a decimal-hours figure like "20.7hrs", which
+  // doesn't actually tell you how many minutes that is
+  function fmtHrsMins(totalSeconds) {
+    const totalMin = Math.round(totalSeconds / 60);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    const parts = [];
+    if (h > 0) parts.push(h + 'hrs');
+    if (m > 0 || h === 0) parts.push(m + 'mins');
+    return parts.join(' ');
   }
 
   // =====================================================================

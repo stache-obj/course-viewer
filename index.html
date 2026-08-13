@@ -7,7 +7,7 @@
 <!-- GitHub Pages caches these for 10min and browsers cache them further on
      top of that -- bump ?v=N on both this and the </body> script tag any
      time app.js or styles.css changes, or updates won't reach visitors -->
-<link rel="stylesheet" href="styles.css?v=12">
+<link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body>
 
@@ -380,6 +380,20 @@
     </div>
   </div>
 
-  <script src="app.js?v=12"></script>
+  <!-- ============ MISSING CONTENT MODAL ============ -->
+  <div class="modal-overlay" id="missingContentModal" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Incomplete course folder</h2>
+        <button class="icon-x" id="closeMissingContentBtn" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+        </button>
+      </div>
+      <p class="missing-content-sub">Your course folder is missing the following, compared to what a complete download should contain:</p>
+      <div class="modal-body" id="missingContentBody"></div>
+    </div>
+  </div>
+
+  <script src="app.js?v=13"></script>
 </body>
 </html>
