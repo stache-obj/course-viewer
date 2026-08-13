@@ -1598,6 +1598,12 @@
     noteForm.hidden = false;
     noteText.focus();
   });
+  noteText.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      saveNoteBtn.click();
+    }
+  });
   cancelNoteBtn.addEventListener('click', () => {
     noteForm.hidden = true;
     if (wasPlayingBeforeNote) video.play().catch(() => {});
