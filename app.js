@@ -1597,6 +1597,7 @@
     noteImagePreview.innerHTML = '';
     noteForm.hidden = false;
     noteText.focus();
+    noteForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
   noteText.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1650,7 +1651,7 @@
       renderNoteMarkers();
       if (wasPlayingBeforeNote) video.play().catch(() => {});
       noteText.blur();
-      document.getElementById('player').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     } finally {
       saveNoteBtn.disabled = false;
     }
