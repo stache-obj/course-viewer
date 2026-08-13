@@ -1654,6 +1654,8 @@
       if (wasPlayingBeforeNote) video.play().catch(() => {});
       noteText.blur();
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      const chapterListEl = document.getElementById('chapterList');
+      if (chapterListEl) chapterListEl.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       saveNoteBtn.disabled = false;
     }
