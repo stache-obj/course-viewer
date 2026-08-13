@@ -170,6 +170,8 @@ svg { display: block; }
 .btn-secondary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
 .btn-ghost:hover { background: var(--panel-alt); color: var(--text); }
+.btn-danger { background: rgba(226,100,95,0.12); border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
 /* ---- shared topbar "box" sizing: every control in the top-right row
@@ -980,6 +982,16 @@ video::cue { opacity: 0; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
 .modal-header h2 { font-size: 21px; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
 .modal-body { padding: 20px 24px 24px; overflow-y: auto; }
+.modal-narrow { max-width: 460px; }
+
+.settings-section { padding: 18px 0; border-bottom: 1px solid var(--border-soft); }
+.settings-section:first-child { padding-top: 2px; }
+.settings-section:last-child { border-bottom: none; padding-bottom: 2px; }
+.settings-section h3 { font-size: 14px; font-weight: 700; margin: 0 0 8px; letter-spacing: 0.01em; }
+.settings-hint { font-size: 13px; line-height: 1.55; color: var(--text-dim); margin: 0 0 14px; }
+.settings-hint-soft { color: var(--text-dim); opacity: 0.85; margin-bottom: 20px; }
+.settings-danger h3 { color: var(--danger); }
+.settings-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
 .modal-chapter-group { margin-bottom: 22px; }
 .modal-chapter-group:last-child { margin-bottom: 0; }
 .modal-chapter-title {

@@ -1189,11 +1189,53 @@
   closeMissingContentBtn.addEventListener('click', () => (missingContentModal.hidden = true));
   missingContentModal.addEventListener('click', (e) => { if (e.target === missingContentModal) missingContentModal.hidden = true; });
 
-  document.getElementById('resetCourseBtn').addEventListener('click', async () => {
-    const sure = confirm(
-      'This permanently erases all progress, notes, and preferences. This cannot be undone. Continue?'
-    );
-    if (!sure) return;
+  // =====================================================================
+  // SETTINGS MODAL (course folder switch + reset, replaces the old
+  // standalone Reset Course topbar button)
+  // =====================================================================
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsModal = document.getElementById('settingsModal');
+  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  const changeFolderBtn = document.getElementById('changeFolderBtn');
+  const openResetConfirmBtn = document.getElementById('openResetConfirmBtn');
+  const resetConfirmModal = document.getElementById('resetConfirmModal');
+  const closeResetConfirmBtn = document.getElementById('closeResetConfirmBtn');
+  const cancelResetConfirmBtn = document.getElementById('cancelResetConfirmBtn');
+  const confirmResetBtn = document.getElementById('confirmResetBtn');
+
+  settingsBtn.addEventListener('click', () => (settingsModal.hidden = false));
+  closeSettingsBtn.addEventListener('click', () => (settingsModal.hidden = true));
+  settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.hidden = true; });
+
+  changeFolderBtn.addEventListener('click', async () => {
+    try {
+      const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      const manifest = await scanCourse(dirHandle);
+      if (manifest.chapters.length === 0) {
+        alert('This doesn\'t look like a valid course folder — no "chapter #N" folders with videos were found inside it.');
+        return;
+      }
+      await ensureMetadata(dirHandle);
+      await idbSet(HANDLE_KEY, dirHandle);
+      // simplest safe way to fully re-point the app at the new folder --
+      // avoids having to hand-unwind every bit of in-memory player/course
+      // state (video src, subtitles, scan results, watch progress, etc.)
+      location.reload();
+    } catch (e) {
+      if (e.name !== 'AbortError') alert('Could not switch folder: ' + e.message);
+    }
+  });
+
+  openResetConfirmBtn.addEventListener('click', () => {
+    settingsModal.hidden = true;
+    resetConfirmModal.hidden = false;
+  });
+  closeResetConfirmBtn.addEventListener('click', () => (resetConfirmModal.hidden = true));
+  cancelResetConfirmBtn.addEventListener('click', () => (resetConfirmModal.hidden = true));
+  resetConfirmModal.addEventListener('click', (e) => { if (e.target === resetConfirmModal) resetConfirmModal.hidden = true; });
+
+  confirmResetBtn.addEventListener('click', async () => {
+    confirmResetBtn.disabled = true;
     try {
       for (const [file, def] of Object.entries(METADATA_DEFAULTS)) {
         await writeMetaJson(file, def);
@@ -1205,10 +1247,11 @@
       }
       // forget the remembered folder too, so the picker screen shows again
       // instead of silently reconnecting -- see the code comment on the
-      // click handler itself for why this can't fully revoke the browser's
-      // own access grant, only our app's memory of it
+      // folder picker's own click handler for why this can't fully revoke
+      // the browser's own access grant, only our app's memory of it
       await idbDelete(HANDLE_KEY).catch(() => {});
     } catch (e) {
+      confirmResetBtn.disabled = false;
       alert('Reset failed: ' + e.message);
       return;
     }

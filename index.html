@@ -7,7 +7,7 @@
 <!-- GitHub Pages caches these for 10min and browsers cache them further on
      top of that -- bump ?v=N on both this and the </body> script tag any
      time app.js or styles.css changes, or updates won't reach visitors -->
-<link rel="stylesheet" href="styles.css?v=27">
+<link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body>
 
@@ -84,9 +84,9 @@
           <span id="updateCourseLabel">Checking…</span>
         </button>
 
-        <button class="topbar-box control-single reset-btn" id="resetCourseBtn" title="Erase all progress, notes, and preferences">
-          <svg viewBox="0 0 24 24"><path d="M12 5V2L8 6l4 4V7a5 5 0 1 1-4.9 6H5a7 7 0 1 0 7-8z"/></svg>
-          <span>Reset Course</span>
+        <button class="topbar-box control-single" id="settingsBtn" title="Settings">
+          <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.62.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94L2.82 14.5a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.42.34.68.22l2.39-.96c.5.38 1.04.7 1.63.94l.36 2.54c.05.24.26.42.5.42h3.84c.24 0 .45-.18.5-.42l.36-2.54c.59-.24 1.13-.56 1.63-.94l2.39.96c.26.1.54 0 .68-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.56zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg>
+          <span>Settings</span>
         </button>
 
         <a class="brand-btn discord" id="discordBtn" href="https://discord.gg/yJQB6ZUC8u" target="_blank" rel="noopener" title="Join the Discord">
@@ -396,6 +396,50 @@
     </div>
   </div>
 
-  <script src="app.js?v=27"></script>
+  <!-- ============ SETTINGS MODAL ============ -->
+  <div class="modal-overlay" id="settingsModal" hidden>
+    <div class="modal modal-narrow">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="icon-x" id="closeSettingsBtn" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h3>Course folder</h3>
+          <p class="settings-hint">Point the tool at your course folder somewhere else on disk — useful if you moved it, renamed it, or want to switch to a different copy (e.g. the 1080p version).</p>
+          <button class="btn btn-secondary" id="changeFolderBtn">Change source folder…</button>
+        </div>
+        <div class="settings-section settings-danger">
+          <h3>Danger zone</h3>
+          <p class="settings-hint">Erases all watch progress, notes, and preferences for this course. Your video files on disk are never touched or deleted.</p>
+          <button class="btn btn-danger" id="openResetConfirmBtn">Reset Course</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ RESET CONFIRM MODAL ============ -->
+  <div class="modal-overlay" id="resetConfirmModal" hidden>
+    <div class="modal modal-narrow">
+      <div class="modal-header">
+        <h2>Reset course progress?</h2>
+        <button class="icon-x" id="closeResetConfirmBtn" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-hint">This permanently erases all watch progress, notes, and preferences for this course. This cannot be undone.</p>
+        <p class="settings-hint settings-hint-soft">Your course video files are not touched or deleted — only your progress and notes.</p>
+        <div class="settings-confirm-actions">
+          <button class="btn btn-ghost" id="cancelResetConfirmBtn">Cancel</button>
+          <button class="btn btn-danger" id="confirmResetBtn">Yes, erase everything</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=28"></script>
 </body>
 </html>
