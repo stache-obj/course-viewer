@@ -344,6 +344,11 @@ svg { display: block; }
   color: var(--text); font-size: 13.5px; line-height: 1.6;
   border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;
 }
+.picker-brave-warning {
+  background: var(--accent-soft, rgba(226,100,95,0.1)); border: 1px solid var(--danger);
+  color: var(--text); font-size: 13.5px; line-height: 1.6;
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;
+}
 
 /* ===================================================================
    TOPBAR

@@ -303,6 +303,7 @@
   const appScreen = document.getElementById('appScreen');
   const pickerError = document.getElementById('pickerError');
   const pickerUnsupported = document.getElementById('pickerUnsupported');
+  const pickerBraveWarning = document.getElementById('pickerBraveWarning');
   const chooseFolderBtn = document.getElementById('chooseFolderBtn');
   const pickDifferentFolderBtn = document.getElementById('pickDifferentFolderBtn');
 
@@ -377,6 +378,13 @@
       chooseFolderBtn.disabled = true;
       showPickerScreen();
       return;
+    }
+    // Brave is Chromium-based and still exposes showDirectoryPicker, so
+    // supportsFSA is true there -- but Shields blocks the picker from
+    // actually opening by default, silently, with no error. navigator.brave
+    // is Brave's own official feature-detection hook for exactly this.
+    if (navigator.brave && (await navigator.brave.isBrave().catch(() => false))) {
+      pickerBraveWarning.hidden = false;
     }
     // fully silent path: if the browser still trusts the last-used folder
     // with no prompt needed at all, skip the picker screen entirely

@@ -7,7 +7,7 @@
 <!-- GitHub Pages caches these for 10min and browsers cache them further on
      top of that -- bump ?v=N on both this and the </body> script tag any
      time app.js or styles.css changes, or updates won't reach visitors -->
-<link rel="stylesheet" href="styles.css?v=28">
+<link rel="stylesheet" href="styles.css?v=29">
 </head>
 <body>
 
@@ -20,7 +20,12 @@
 
       <div class="picker-unsupported" id="pickerUnsupported" hidden>
         This browser doesn't support picking a local folder from a web page. Please open this page in
-        <strong>Chrome, Edge, Brave, or Opera</strong> instead — Firefox and Safari aren't supported yet.
+        <strong>Chrome, Edge, or Opera</strong> instead — Firefox and Safari aren't supported yet.
+      </div>
+
+      <div class="picker-brave-warning" id="pickerBraveWarning" hidden>
+        Brave blocks this feature by default under Shields, even though the button will still show up. Click the
+        <strong>Brave Shields icon</strong> in the address bar and turn Shields <strong>off for this site</strong>, then reload the page — or open this page in Chrome/Edge instead.
       </div>
 
       <div class="picker-error" id="pickerError"></div>
@@ -440,6 +445,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=28"></script>
+  <script src="app.js?v=29"></script>
 </body>
 </html>
